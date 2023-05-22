@@ -1,0 +1,39 @@
+# This is a basic workflow to help you get started with Actions 
+
+name: Main CI/CD 
+ 
+# Controls when the workflow will run
+on: [push]
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    container: python:3.8
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - run: pip install --upgrade pip
+    - run: pip install flake8 pep8-naming
+    - run: flake8 --per-file-ignores='*/__init__.py:F401'  --ignore='E203,E501,E712,F401,W503,N801,N805,N807' --exclude='databricks_workflows/API_Table_Export_Task.py'
+    
+  
+  safety:
+    runs-on: ubuntu-latest
+    container: python:3.8
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - run: pip install safety 
+    - run: safety check --full-report -r poetry.lock
+  
+
+  bandit:
+    runs-on: ubuntu-latest
+    container: python:3.8
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - run: pip install bandit
+    - run: bandit --exclude "./versed_api/core/tests" -r . --skip=B101,B404,B603
