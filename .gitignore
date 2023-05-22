@@ -1,0 +1,13 @@
+# Python 
+__pycache__/
+
+# Django 
+db.sqlite3
+.DS_Store
+staticfiles
+
+# Poetry
+dist/
+
+.vscode/
+.venv/

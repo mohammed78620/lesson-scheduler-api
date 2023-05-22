@@ -1,0 +1,51 @@
+version: "3.7"
+services:
+  web:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"
+      - "9200:9200"
+      - "3000:3000"
+    volumes:
+      - .:/app/
+    environment:
+      # SECRETS
+      - SECRET_KEY=django-insecure-68g))^hu8*1eq01406e--+ujzmdalf=so_($s40v_!q3&ccg^+
+      # DJANGO SETTINGS
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,[::1]
+      # DATABASE RELATED
+      - DATABASE_NAME=db
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=admin
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+    depends_on:
+      - db
+    networks:
+      - net
+
+  db:
+    image: postgres:14.2-alpine
+    restart: unless-stopped
+    volumes:
+      - ~/data/postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=db
+    ports:
+      - "5432:5432"
+    networks:
+      - net
+
+volumes:
+  postgres_data:
+    driver: local
+  cache:
+    driver: local
+
+networks:
+  net:
+    driver: bridge
