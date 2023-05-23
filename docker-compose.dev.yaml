@@ -10,8 +10,6 @@ services:
     volumes:
       - .:/app/
     environment:
-      # SECRETS
-      - SECRET_KEY=django-insecure-68g))^hu8*1eq01406e--+ujzmdalf=so_($s40v_!q3&ccg^+
       # DJANGO SETTINGS
       - DEBUG=True
       - ALLOWED_HOSTS=localhost,127.0.0.1,[::1]
