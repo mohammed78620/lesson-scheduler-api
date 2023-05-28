@@ -50,11 +50,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "rest_framework",
+    "rest_auth.registration",
     "drf_spectacular",
     "django_filters",
     "corsheaders",
     "core",
-    # "rest_framework.authtoken"
+    "user",
 ]
 
 DEFAULT_RENDERER_CLASSES = ("rest_framework.renderers.JSONRenderer",)
