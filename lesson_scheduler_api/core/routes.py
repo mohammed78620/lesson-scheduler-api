@@ -11,7 +11,7 @@ class OptionalSlashRouter(SimpleRouter):
 
 router = OptionalSlashRouter()
 router.register(r"bookings", BookingViewSet, basename="bookings")
-router.register(r"create_booking", CreateBookingView, basename="create_booking")
+router.register(r"", CreateBookingView, basename="")
 
 user_router = OptionalSlashRouter()
 user_router.register(r"user_create", UserCreateView, basename="user_create")
