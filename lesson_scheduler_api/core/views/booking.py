@@ -1,31 +1,46 @@
-from core.models.booking import Booking
-from core.serializers import BookingSerializer, CountSerializer
-from django.http import JsonResponse
-from drf_spectacular.utils import extend_schema
-
-# from core.serializers import
-from rest_framework import mixins, viewsets
+from core.models import Booking, User
+from core.serializers import BookingSerializer
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.viewsets import ViewSet
 
 
-class BookingViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class BookingViewSet(viewsets.ModelViewSet):
     """
     Returns an booking given the id.
     """
 
+    queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    lookup_field = "id"
 
-    def get_queryset(self):
-        return Booking.objects.all()
 
+class CreateBookingView(ViewSet):
     @extend_schema(
-        responses={200: CountSerializer()},
+        request=BookingSerializer,
+        responses={status.HTTP_201_CREATED: BookingSerializer},
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                description="ID of the user for whom to create the booking.",
+            )
+        ],
     )
-    @action(detail=False, methods=["get"], filter_backends=[])
-    def metrics(self, request):
-        """
-        Returns the number of edges in the database.
-        """
-        a = Booking.objects.all().count()
-        return JsonResponse({"count": a})
+    @action(detail=False, methods=["post"])
+    def create_booking(self, request):
+        id = int(request.query_params.get("id"))
+        try:
+            user = User.objects.get(id=id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data
+        data["user"] = user.id
+        serializer = BookingSerializer(data=data)
+        if serializer.is_valid():
+            booking = serializer.save()
+            return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

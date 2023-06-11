@@ -1,4 +1,4 @@
-from core.models.booking import Booking
+from core.models import Booking, User
 from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
 from rest_framework import serializers
 
@@ -10,7 +10,10 @@ from rest_framework import serializers
             "Booking",
             summary="A booking object",
             description="A booking",
-            value={"id": "1", "number_booked": 1, "size": 30},
+            value={
+                "user": 30,
+                "lesson": "wrestling",
+            },
             request_only=False,
             response_only=True,
         ),
@@ -19,12 +22,7 @@ from rest_framework import serializers
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
-        fields = (
-            "id",
-            "number_booked",
-            "size",
-        )
-        depth = 1
+        fields = ["user", "lesson"]
 
 
 @extend_schema_serializer(
@@ -42,3 +40,25 @@ class BookingSerializer(serializers.ModelSerializer):
 )
 class CountSerializer(serializers.Serializer):
     count = serializers.IntegerField()
+
+
+@extend_schema_serializer(
+    many=True,
+    examples=[
+        OpenApiExample(
+            "User",
+            summary="A User object",
+            description="A user",
+            value={
+                "username": "john@gmail.com",
+                "password": "esgfwerf6er2as0",
+            },
+            request_only=True,
+            response_only=False,
+        ),
+    ],
+)
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username", "password"]
