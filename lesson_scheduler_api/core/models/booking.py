@@ -3,7 +3,6 @@ from django.db import models
 
 
 class Booking(models.Model):
-    # booking_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     number_booked = models.IntegerField(default=0)
     size = models.IntegerField(default=30)
