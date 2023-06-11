@@ -39,8 +39,20 @@ class CreateBookingView(ViewSet):
 
         data = request.data
         data["user"] = user.id
+
+        # Check if a booking already exists for the lesson and user
+        existing_booking = Booking.objects.filter(user=user, lesson=data["lesson"]).first()
+        if existing_booking:
+            existing_booking.number_booked = Booking.objects.filter(lesson=data["lesson"]).count()
+            existing_booking.save()
+            return Response(BookingSerializer(existing_booking).data, status=status.HTTP_200_OK)
+
         serializer = BookingSerializer(data=data)
         if serializer.is_valid():
             booking = serializer.save()
+            # Update all instances of Booking with the updated number of bookings
+            Booking.objects.filter(lesson=data["lesson"]).update(
+                number_booked=Booking.objects.filter(lesson=data["lesson"]).count()
+            )
             return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

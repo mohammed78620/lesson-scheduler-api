@@ -22,7 +22,7 @@ from rest_framework import serializers
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
-        fields = ["user", "lesson"]
+        fields = ["user", "lesson", "number_booked"]
 
 
 @extend_schema_serializer(
