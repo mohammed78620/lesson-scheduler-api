@@ -29,7 +29,7 @@ jobs:
     - run: safety check --full-report -r poetry.lock
 
 
-  pytest:
+  unittest:
     needs: [flake8, safety]
     runs-on: ubuntu-latest
     
