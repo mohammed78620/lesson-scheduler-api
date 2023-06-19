@@ -17,7 +17,7 @@ user_router = OptionalSlashRouter()
 user_router.register(r"user_create", UserCreateView, basename="user_create")
 
 
-urlpatterns = [
+core_urlpatterns = [
     path(r"", include((router.urls, "v0"), namespace="v0")),
 ]
 user_urlpatterns = [

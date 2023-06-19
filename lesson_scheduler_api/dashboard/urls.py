@@ -1,5 +1,4 @@
-from core.routes import urlpatterns as core_urlpatterns
-from core.routes import user_urlpatterns
+from core.routes import core_urlpatterns, user_urlpatterns
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
@@ -13,5 +12,5 @@ urlpatterns = [
 
 urlpatterns += [
     path("core/", include(core_urlpatterns)),
-    path("user/", include(user_urlpatterns)),
+    path("", include(user_urlpatterns)),
 ]

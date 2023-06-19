@@ -14,6 +14,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+    http_method_names = ["get"]
 
 
 class CreateBookingView(ViewSet):
