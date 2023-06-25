@@ -16,6 +16,29 @@ class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
     http_method_names = ["get"]
 
+    @extend_schema(
+        request=BookingSerializer,
+        responses={status.HTTP_201_CREATED: BookingSerializer},
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                description="ID of the user for whom to create the booking.",
+            )
+        ],
+    )
+    @action(detail=False, methods=["get"])
+    def get_user_bookings(self, request):
+        id = int(request.query_params.get("id"))
+        try:
+            user = User.objects.get(id=id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        bookings = Booking.objects.filter(user=user)
+        serialized_bookings = BookingSerializer(bookings, many=True).data
+        return Response(serialized_bookings, status=status.HTTP_200_OK)
+
 
 class CreateBookingView(ViewSet):
     @extend_schema(
