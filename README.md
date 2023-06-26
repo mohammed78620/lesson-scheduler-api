@@ -52,10 +52,10 @@ The Lesson Scheduler API runs tests via the [DRF Testing](https://www.django-res
 
 To run the tests from a docker container, simply run
 ```bash
-docker exec -i lesson-scheduler-api-web-1 bash -c 'poetry run python lesson_scheduler_api/manage.py test -v 2' 
+docker exec -i lesson-scheduler-api-web-1 bash -c 'source /app/.venv/bin/activate && poetry run python lesson_scheduler_api/manage.py test core.tests -v 2 --buffer'
 ```
 
 Alternatively, tests can be run from source ( prior to having a postgres database running )
 ```bash
-poetry run python lesson_scheduler_api/manage.py test -v 2
+poetry run poetry run python lesson_scheduler_api/manage.py test core.tests --buffer
 ```
