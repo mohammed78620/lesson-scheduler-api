@@ -1,5 +1,6 @@
-from core.views import BookingViewSet, CreateBookingView, UserCreateView
+from core.views import BookingViewSet, CreateBookingView, SignInAPI, SignUpAPI
 from django.urls import include, path
+from knox import views as knox_views
 from rest_framework.routers import SimpleRouter
 
 
@@ -14,7 +15,8 @@ router.register(r"bookings", BookingViewSet, basename="bookings")
 router.register(r"", CreateBookingView, basename="")
 
 user_router = OptionalSlashRouter()
-user_router.register(r"user_create", UserCreateView, basename="user_create")
+user_router.register(r"user", SignInAPI, basename="user")
+user_router.register(r"user", SignUpAPI, basename="user")
 
 
 core_urlpatterns = [
@@ -22,4 +24,5 @@ core_urlpatterns = [
 ]
 user_urlpatterns = [
     path(r"", include((user_router.urls, "v0"), namespace="v0")),
+    path("api/auth/logout", knox_views.LogoutView.as_view(), name="knox-logout"),
 ]
