@@ -1,7 +1,7 @@
 import json
 
 from core.models import Booking
-from core.views import CreateBookingView, SignUpAPI
+from core.views import CreateBookingView, SignInAPI, SignUpAPI
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework import status
@@ -55,4 +55,28 @@ class SignUpAPITestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(User.objects.first().get_username(), self.user_data["username"])
+
+
+class SignInAPITestCase(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.view = SignInAPI.as_view({"post": "signin"})
+        self.user_data = {"username": "testuser", "password": "testpassword"}
+        self.user = User.objects.create_user(**self.user_data)
+        self.headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+    def test_sign_in(self):
+        url = "/user/signin/"
+
+        request = self.factory.post(url, data=json.dumps(self.user_data), content_type="application/json")
+        request.META["HTTP_ACCEPT"] = self.headers["accept"]
+        force_authenticate(request, user=self.user)
+        response = self.view(request)
+        print(response)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(User.objects.first().get_username(), self.user_data["username"])
