@@ -16,7 +16,7 @@ class SignUpAPI(ViewSet, generics.GenericAPIView):
         responses={200: UserSerializer},
         description="Sign Up",
     )
-    def signup_action(self, request, *args, **kwargs):
+    def signup(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -33,7 +33,7 @@ class SignInAPI(ViewSet, generics.GenericAPIView):
         responses={200: UserSerializer},
         description="Sign In",
     )
-    def signin_action(self, request):
+    def signin(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
