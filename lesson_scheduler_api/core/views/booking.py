@@ -33,7 +33,7 @@ class BookingViewSet(viewsets.ModelViewSet):
         id = int(request.query_params.get("id"))
         try:
             user = User.objects.get(id=id)
-        except User.DoesNotExist:
+        except Exception:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         bookings = Booking.objects.filter(user=user)
         serialized_bookings = BookingSerializer(bookings, many=True).data
@@ -58,7 +58,7 @@ class CreateBookingView(ViewSet):
         id = int(request.query_params.get("id"))
         try:
             user = User.objects.get(id=id)
-        except User.DoesNotExist:
+        except Exception:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
         data = dict(request.data)

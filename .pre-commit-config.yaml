@@ -1,23 +1,24 @@
 repos:
   - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
       - id: isort
-        name: isort
+        name: isort (python)
+        args: ["--profile", "black"]
 
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 23.11.0
     hooks:
       - id: black
+        args: ["--line-length=119"]
         exclude: '^lesson_scheduler_api/core/migrations/'
-      
+
   - repo: https://github.com/pycqa/flake8
-    rev: 5.0.4
+    rev: 6.1.0
     hooks:
       - id: flake8
         entry: pflake8
         additional_dependencies:
           - pyproject-flake8
-          - flake8-django
           - flake8-bugbear
           - flake8-assertive
