@@ -76,7 +76,7 @@ class SignInAPITestCase(TestCase):
         request.META["HTTP_ACCEPT"] = self.headers["accept"]
         force_authenticate(request, user=self.user)
         response = self.view(request)
-        print(response)
+        print(response.data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(User.objects.first().get_username(), self.user_data["username"])

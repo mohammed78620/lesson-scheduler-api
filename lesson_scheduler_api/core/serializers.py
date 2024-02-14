@@ -1,5 +1,6 @@
 from core.models import Booking
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import check_password
 from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
 from rest_framework import serializers
 
@@ -73,11 +74,13 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         try:
-            user = User.objects.get(username=data["username"], password=data["password"])
+            user = User.objects.get(username=data["username"])
         except Exception:
             raise serializers.ValidationError("Incorrect Credentials Passed.")
-        if user and user.is_active:
+
+        if user and user.is_active and check_password(data["password"], user.password):
             return user
+
         raise serializers.ValidationError("Incorrect Credentials Passed.")
 
 
