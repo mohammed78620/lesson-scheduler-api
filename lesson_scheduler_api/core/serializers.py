@@ -1,5 +1,5 @@
 from core.models import Booking
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model
 from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
 from rest_framework import serializers
 
@@ -72,7 +72,10 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField()
 
     def validate(self, data):
-        user = authenticate(**data)
+        try:
+            user = User.objects.get(username=data["username"], password=data["password"])
+        except Exception:
+            raise serializers.ValidationError("Incorrect Credentials Passed.")
         if user and user.is_active:
             return user
         raise serializers.ValidationError("Incorrect Credentials Passed.")
@@ -89,3 +92,25 @@ class RegisterSerializer(serializers.ModelSerializer):
             validated_data["username"], validated_data["email"], validated_data["password"]
         )
         return user
+
+
+@extend_schema_serializer(
+    many=True,
+    examples=[
+        OpenApiExample(
+            "UpdatePassword",
+            summary="Update the password",
+            value={"username": "mo", "old_password": "qwerty", "new_password": "ytrewq"},
+            request_only=True,
+            response_only=False,
+        ),
+    ],
+)
+class UpdatePasswordSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    old_password = serializers.CharField()
+    new_password = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = ("username", "old_password", "new_password")
