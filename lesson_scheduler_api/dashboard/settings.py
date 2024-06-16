@@ -15,6 +15,7 @@ from pathlib import Path
 
 # import django
 import environ
+from celery.schedules import crontab
 from django.core.exceptions import ImproperlyConfigured
 
 # import json_log_formatter
@@ -29,6 +30,8 @@ environment = environ.FileAwareEnv(
     DATABASE_HOST=(str, None),
     DATABASE_PORT=(int, None),
     SERVERS=(list, [{"url": "http://localhost:8000", "description": "The lesson scheduler API"}]),
+    CELERY_BROKER_URL=(str, "amqp://admin:mypass@rabbit:5672"),
+    GOOGLE_APP_PASSWORD=(str, None),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,11 +47,16 @@ ALLOWED_HOSTS = environment.list("ALLOWED_HOSTS")
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django_celery_beat",
+    "django_celery_results",
+    "django.contrib.sessions",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
+    "django_extensions",
     "rest_framework",
     "knox",
     "rest_auth.registration",
@@ -201,3 +209,20 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 300  # set low, but when site is ready for deployment, set to at least 15768000 (6 months)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+
+SHELL_PLUS_PRE_IMPORTS = (("core.tasks", ("EmailUsers", "UpdateUsersMissedBookings")),)
+
+# Celery config
+CELERY_BROKER_URL = environment("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_ROUTES = {"Update Missed Bookings": {"queue": "update-user-missed-bookings"}}
+CELERY_BEAT_SCHEDULE = {
+    "example_task": {
+        "task": "Example Task",
+        "schedule": crontab(minute="*/1"),
+    },
+}
+
+GOOGLE_APP_PASSWORD = environment("GOOGLE_APP_PASSWORD")
+
+MAXIMUM_NUMBER_OF_MISSED_BOOKINGS = 10

@@ -11,3 +11,7 @@ dist/
 
 .vscode/
 .venv/
+
+.env
+
+lesson_scheduler_api/celerybeat-schedule
