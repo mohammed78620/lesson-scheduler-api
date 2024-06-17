@@ -1,4 +1,8 @@
-from core.models import Booking, User
+from datetime import datetime, timezone
+from typing import List
+
+from core.models.booking import LESSON_CHOICES_BOOKING_TIMES, Booking, Event, Weekday
+from core.models.user import User
 from core.serializers import BookingSerializer
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
@@ -63,20 +67,43 @@ class CreateBookingView(ViewSet):
 
         data = dict(request.data)
         data["user"] = user.id
+        lesson = data["lesson"]
+        booking_time = datetime.fromisoformat(data["booking_time"])
+
+        if booking_time < datetime.now(timezone.utc):
+            return Response(data="booking time is less than todays date", status=status.HTTP_400_BAD_REQUEST)
 
         # Check if a booking already exists for the lesson and user
-        existing_booking = Booking.objects.filter(user=user, lesson=data["lesson"]).first()
-        if existing_booking:
-            existing_booking.number_booked = Booking.objects.filter(lesson=data["lesson"]).count()
-            existing_booking.save()
-            return Response(BookingSerializer(existing_booking).data, status=status.HTTP_200_OK)
+        lesson_choices = LESSON_CHOICES_BOOKING_TIMES[lesson]
 
-        serializer = BookingSerializer(data=data)
-        if serializer.is_valid():
-            booking = serializer.save()
-            # Update all instances of Booking with the updated number of bookings
-            Booking.objects.filter(lesson=data["lesson"]).update(
-                number_booked=Booking.objects.filter(lesson=data["lesson"]).count()
-            )
-            return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
+        if lesson_choice_exists(lesson_choices, booking_time):
+            existing_booking = Booking.objects.filter(user=user, lesson=lesson, booking_time=booking_time).first()
+            if existing_booking:
+                existing_booking.number_booked = Booking.objects.filter(
+                    lesson=lesson, booking_time=booking_time
+                ).count()
+                existing_booking.save()
+                return Response(BookingSerializer(existing_booking).data, status=status.HTTP_200_OK)
+
+            serializer = BookingSerializer(data=data)
+            if serializer.is_valid():
+                booking = serializer.save()
+                # Update all instances of Booking with the updated number of bookings
+                Booking.objects.filter(lesson=lesson, booking_time=booking_time).update(
+                    number_booked=Booking.objects.filter(lesson=data["lesson"], booking_time=booking_time).count()
+                )
+                return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
+        else:
+            Response(data="class doesnt exist.", status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def lesson_choice_exists(lesson_choices: List[Event], booking_time: datetime):
+    weekday = booking_time.weekday()
+    weekday = Weekday(weekday)
+
+    for lesson in lesson_choices:
+        if lesson.weekday == weekday and lesson.hour == booking_time.hour and lesson.minute == booking_time.minute:
+            return True
+
+    return False

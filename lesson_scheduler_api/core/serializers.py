@@ -13,10 +13,7 @@ User = get_user_model()
             "Booking",
             summary="A booking object",
             description="A booking",
-            value={
-                "user": 30,
-                "lesson": "wrestling",
-            },
+            value={"user": 30, "lesson": "wrestling", "number_booked": 10, "booking_time": "12-01-2024"},
             request_only=False,
             response_only=True,
         ),
@@ -25,7 +22,7 @@ User = get_user_model()
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
-        fields = ["user", "lesson", "number_booked"]
+        fields = ["user", "lesson", "number_booked", "booking_time"]
 
 
 @extend_schema_serializer(

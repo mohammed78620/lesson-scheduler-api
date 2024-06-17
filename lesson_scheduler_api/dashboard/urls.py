@@ -1,9 +1,7 @@
 from core.routes import core_urlpatterns, user_urlpatterns
+from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-
-# from core.routes import user_urlpatterns
-
 
 urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(api_version="v0"), name="schema"),
@@ -11,6 +9,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    path("admin/", admin.site.urls),
     path("core/", include(core_urlpatterns)),
     path("", include(user_urlpatterns)),
 ]
