@@ -46,6 +46,7 @@ class Booking(models.Model):
     time_booked = models.DateTimeField(auto_now_add=True)
     booking_time = models.DateTimeField()
     attended = models.BooleanField(default=False)
+    expired_booking = models.BooleanField(default=False)
 
     class Meta:
         db_table = "booking"

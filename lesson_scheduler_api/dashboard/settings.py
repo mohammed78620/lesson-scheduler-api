@@ -32,6 +32,8 @@ environment = environ.FileAwareEnv(
     SERVERS=(list, [{"url": "http://localhost:8000", "description": "The lesson scheduler API"}]),
     CELERY_BROKER_URL=(str, "amqp://admin:mypass@rabbit:5672"),
     GOOGLE_APP_PASSWORD=(str, None),
+    SENDER_EMAIL_ADDRESS=(str, None),
+    ENABLE_PERIODIC_TASKS=(bool, False),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -210,18 +212,27 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-SHELL_PLUS_PRE_IMPORTS = (("core.tasks", ("EmailUsers", "UpdateUsersMissedBookings")),)
+SHELL_PLUS_PRE_IMPORTS = (
+    ("core.tasks.email_users", ("EmailUsers")),
+    ("core.tasks.update_users_missed_bookings", ("UpdateUsersMissedBookings")),
+)
+
+SENDER_EMAIL_ADDRESS = environment("SENDER_EMAIL_ADDRESS")
 
 # Celery config
+ENABLE_PERIODIC_TASK = environment("ENABLE_PERIODIC_TASKS")
 CELERY_BROKER_URL = environment("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_ROUTES = {"Update Missed Bookings": {"queue": "update-user-missed-bookings"}}
-CELERY_BEAT_SCHEDULE = {
-    "example_task": {
-        "task": "Example Task",
-        "schedule": crontab(minute="*/1"),
-    },
-}
+
+if ENABLE_PERIODIC_TASK:
+    CELERY_BEAT_SCHEDULE = {
+        "update_missed_bookings": {
+            "task": "Update Missed Bookings",
+            "schedule": crontab(month_of_year=1, hour=1),
+        },
+        "email_users": {"task": "Email Users", "schedule": crontab(month_of_year=1, hour=2)},
+    }
 
 GOOGLE_APP_PASSWORD = environment("GOOGLE_APP_PASSWORD")
 
