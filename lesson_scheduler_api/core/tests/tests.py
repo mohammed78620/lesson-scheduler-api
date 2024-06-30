@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta, timezone
 
 from core.models import Booking
 from core.views import CreateBookingView, SignInAPI, SignUpAPI
@@ -15,7 +16,10 @@ class CreateBookingViewTestCase(TestCase):
         self.factory = APIRequestFactory()
         self.view = CreateBookingView.as_view({"post": "create_booking"})
         self.user = User.objects.create(username="testuser", password="testpassword")
-        self.booking_data = {"lesson": "wrestling"}
+        self.today = today = datetime.now(timezone.utc)
+        self.booking_time = today + timedelta((1 - today.weekday()) % 7)
+        self.booking_time = self.booking_time.replace(hour=14, minute=0, second=0)
+        self.booking_data = {"lesson": "wrestling", "booking_time": self.booking_time.isoformat()}
         self.headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
@@ -29,7 +33,7 @@ class CreateBookingViewTestCase(TestCase):
         force_authenticate(request, user=self.user)
         response = self.view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(Booking.objects.count(), 1)
         self.assertEqual(Booking.objects.first().user, self.user)
         self.assertEqual(Booking.objects.first().lesson, self.booking_data["lesson"])

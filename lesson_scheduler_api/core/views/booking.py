@@ -93,9 +93,10 @@ class CreateBookingView(ViewSet):
                     number_booked=Booking.objects.filter(lesson=data["lesson"], booking_time=booking_time).count()
                 )
                 return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            Response(data="class doesnt exist.", status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data="class doesnt exist.", status=status.HTTP_400_BAD_REQUEST)
 
 
 def lesson_choice_exists(lesson_choices: List[Event], booking_time: datetime):
