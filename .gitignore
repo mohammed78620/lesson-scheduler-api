@@ -11,3 +11,5 @@ dist/
 
 .vscode/
 .venv/
+
+.env

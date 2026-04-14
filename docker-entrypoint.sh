@@ -1,13 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Collect static files
+set -e
+VENV_PYTHON="/app/.venv/bin/python"
+
 echo "Collect static files"
-python lesson_scheduler_api/manage.py collectstatic --noinput
+$VENV_PYTHON lesson_scheduler_api/manage.py collectstatic --noinput
 
-# Apply database migrations
 echo "Apply database migrations"
-python lesson_scheduler_api/manage.py makemigrations --noinput
-python lesson_scheduler_api/manage.py migrate --noinput
+$VENV_PYTHON lesson_scheduler_api/manage.py migrate --noinput
 
-#Start service
-python -Wd lesson_scheduler_api/manage.py runserver 0.0.0.0:8000
+
+# 👇 THIS LINE IS KEY
+exec "$@"
