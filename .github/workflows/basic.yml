@@ -49,13 +49,15 @@ jobs:
     - name: "Set up Python"
       uses: actions/setup-python@v6
       with:
-        python-version-file: ".python-version"
+        python-version:
+          - "3.12"
 
     - name: Install the project
       env:
           VAI_USER: "github_ci"
           VAI_ENV: "test"
-      run: uv sync --locked
+      run: |
+        uv sync --locked
   
     - name: Run tests
       env:
