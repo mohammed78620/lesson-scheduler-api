@@ -17,60 +17,53 @@ jobs:
     - run: pip install --upgrade pip
     - run: pip install flake8 pep8-naming
     - run: flake8 --per-file-ignores='*/__init__.py:F401'  --ignore='E203,E501,E712,F401,W503,N801,N805,N807' --exclude='databricks_workflows/API_Table_Export_Task.py'
-    
-  
-  # safety:
-  #   runs-on: ubuntu-latest
-  #   container: python:3.8
-  #   steps:
-  #   - name: Check out repository code
-  #     uses: actions/checkout@v3
-  #   - run: pip install safety 
-  #   - run: safety check --full-report -r poetry.lock
 
 
-  # unittest:
-  #   needs: [flake8, safety]
-  #   runs-on: ubuntu-latest
-    
-  #   services: 
-  #     postgres:
-  #       image: postgres:14
-  #       ports: 
-  #         -  5432:5432
-  #       env: 
-  #         POSTGRES_PASSWORD: postgres
-  #         POSTGRES_USERNAME: postgres
-  #         POSTGRES_DB: cicd
-  #       options: >-
-  #         --health-cmd pg_isready
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 5
-          
-  #   container: python:3.10
-  #   steps:
-  #   - name: Get Code
-  #     uses: actions/checkout@v3
-  #   - name: Install Dependencies
-  #     env:
-  #       VAI_USER: "github_ci"
-  #       VAI_ENV: "test"
-  #     run: |
-  #       apt-get update
-  #       pip install --upgrade pip
-  #       pip install "poetry==1.3.1" && poetry --version
-  #       poetry config virtualenvs.create true
-  #       poetry add coverage
-  #       poetry install $(test "$VAI_ENV" == production && echo "--no-dev") --no-interaction --no-ansi --no-root   
-  #   - name: Run tests
-  #     env:
-  #       VAI_USER: "github_ci"
-  #       VAI_ENV: "test"
-  #       DATABASE_USER: postgres
-  #       DATABASE_PASSWORD: postgres
-  #       DATABASE_HOST: "postgres"
-  #       DATABASE_PORT: "5432"
-  #       DATABASE_NAME: cicd
-  #     run: |
-  #       poetry run python lesson_scheduler_api/manage.py test core.tests --buffer
+  unittest:
+      needs: [flake8]
+      runs-on: ubuntu-latest
+
+      services:
+        postgres:
+          image: postgres:14
+          ports:
+            - 5432:5432
+          env:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_DB: cicd
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.11.6"
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install the project
+        env:
+          VAI_USER: "github_ci"
+          VAI_ENV: "test"
+        run: uv sync --locked
+
+      - name: Run tests
+        env:
+          VAI_USER: "github_ci"
+          VAI_ENV: "test"
+          ALLOWED_HOSTS: "localhost,127.0.0.1"
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_HOST: "localhost"
+          DATABASE_PORT: "5432"
+          DATABASE_NAME: cicd
+        run: |
+          uv run python lesson_scheduler_api/manage.py test core.tests --buffer
