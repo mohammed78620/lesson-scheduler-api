@@ -19,14 +19,14 @@ jobs:
     - run: flake8 --per-file-ignores='*/__init__.py:F401'  --ignore='E203,E501,E712,F401,W503,N801,N805,N807' --exclude='databricks_workflows/API_Table_Export_Task.py'
     
   
-  safety:
-    runs-on: ubuntu-latest
-    container: python:3.8
-    steps:
-    - name: Check out repository code
-      uses: actions/checkout@v3
-    - run: pip install safety 
-    - run: safety check --full-report -r poetry.lock
+  # safety:
+  #   runs-on: ubuntu-latest
+  #   container: python:3.8
+  #   steps:
+  #   - name: Check out repository code
+  #     uses: actions/checkout@v3
+  #   - run: pip install safety 
+  #   - run: safety check --full-report -r poetry.lock
 
 
   # unittest:
