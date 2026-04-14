@@ -30,7 +30,7 @@ jobs:
             - 5432:5432
           env:
             POSTGRES_PASSWORD: postgres
-            POSTGRES_USERNAME: postgres
+            POSTGRES_USER: postgres
             POSTGRES_DB: cicd
           options: >-
             --health-cmd pg_isready
@@ -62,7 +62,8 @@ jobs:
           ALLOWED_HOSTS: "localhost,127.0.0.1"
           DATABASE_USER: postgres
           DATABASE_PASSWORD: postgres
-          DATABASE_HOST: "postgres"
+          DATABASE_HOST: "localhost"
           DATABASE_PORT: "5432"
           DATABASE_NAME: cicd
-        run: uv run python lesson_scheduler_api/manage.py test core.tests --buffer
+        run: |
+          uv run python lesson_scheduler_api/manage.py test core.tests --buffer
