@@ -20,49 +20,48 @@ jobs:
 
 
   unittest:
-    needs: [flake8]
-    runs-on: ubuntu-latest
-    
-    services: 
-      postgres:
-        image: postgres:14
-        ports: 
-          -  5432:5432
-        env: 
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USERNAME: postgres
-          POSTGRES_DB: cicd
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          
-    container: python:3.12
-    
-    steps:
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        version: "0.11.6"
-        python-version: "3.12"
-        enable-cache: true
+      needs: [flake8]
+      runs-on: ubuntu-latest
 
-    - name: Install the project
-      env:
+      services:
+        postgres:
+          image: postgres:14
+          ports:
+            - 5432:5432
+          env:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USERNAME: postgres
+            POSTGRES_DB: cicd
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.11.6"
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install the project
+        env:
           VAI_USER: "github_ci"
           VAI_ENV: "test"
-      run: |
-        uv sync --locked
-  
-    - name: Run tests
-      env:
-        VAI_USER: "github_ci"
-        VAI_ENV: "test"
-        DATABASE_USER: postgres
-        DATABASE_PASSWORD: postgres
-        DATABASE_HOST: "postgres"
-        DATABASE_PORT: "5432"
-        DATABASE_NAME: cicd
-      run: |
-        uv run python lesson_scheduler_api/manage.py test core.tests --buffer
+        run: uv sync --locked
+
+      - name: Run tests
+        env:
+          VAI_USER: "github_ci"
+          VAI_ENV: "test"
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_HOST: "postgres"
+          DATABASE_PORT: "5432"
+          DATABASE_NAME: cicd
+        run: uv run python lesson_scheduler_api/manage.py test core.tests --buffer
