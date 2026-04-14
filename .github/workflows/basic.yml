@@ -59,6 +59,7 @@ jobs:
         env:
           VAI_USER: "github_ci"
           VAI_ENV: "test"
+          ALLOWED_HOSTS: "localhost,127.0.0.1"
           DATABASE_USER: postgres
           DATABASE_PASSWORD: postgres
           DATABASE_HOST: "postgres"
