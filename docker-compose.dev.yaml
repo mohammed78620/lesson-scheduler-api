@@ -5,9 +5,11 @@ services:
     restart: always
     ports:
       - "8000:8000"
+      - "5678:5678"
       - "3000:3000"
     volumes:
       - .:/app/
+      - /app/.venv
     environment:
       # SECRETS
       - SECRET_KEY=django-insecure-68g))^hu8*1eq01406e--+ujzmdalf=so_($s40v_!q3&ccg^+
