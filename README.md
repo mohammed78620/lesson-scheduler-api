@@ -60,3 +60,30 @@ poetry run python lesson_scheduler_api/manage.py test core.tests -v 2 --buffer
 ```
 
 Alternatively, tests can be run from source ( prior to having a postgres database running ) by running command above.
+
+## 🪲 Debugging
+To setup Vscode debugger create launch.json file with configuration
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Remote Attach",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "django": true,
+            "justMyCode": true
+        }
+    ]
+}
+```
